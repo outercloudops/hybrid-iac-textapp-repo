@@ -1,0 +1,50 @@
+version: 0.2
+env:
+  parameter-store:
+    KMS_KEY_ID: /codebuild/kms/key-id   
+
+phases:
+  install:
+    commands:
+      - sudo yum install -y yum-utils shadow-utils
+      - sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
+      - sudo yum install -y terraform
+  
+  
+  build:
+    commands:
+      - terraform -chdir=main-infra init -backend-config="bucket=$TEXTAPP_STATE_BUCKET" #additional env var in codebuild needed for state bucket since backend.hcl not readily available []
+      - terraform -chdir=main-infra plan
+      - terraform -chdir=main-infra apply -auto-approve
+      - aws s3 sync ./ah-text-app s3://$TEXTAPP_BUCKET --delete
+    
+  post_build:
+    commands:
+      - DIST_ID=$(aws cloudfront list-distributions --query "DistributionList.Items[?contains(Aliases.Items || \`[]\`, 'www.youramericanhistory.click')].Id" --output text)
+      - aws cloudfront create-invalidation --distribution-id $DIST_ID --paths "/*"
+      - AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+      - aws kms get-key-policy --key-id "$KMS_KEY_ID" --policy-name default --output json > current_policy.json
+      #KMS_KEY_ID NEEDS TO BE CREATED IN CODEBUILD PROJECT AFTER THE PARAMETER IN SSM PARAMETER STORE
+      - DIST_ARN="arn:aws:cloudfront::${AWS_ACCOUNT_ID}:distribution/${DIST_ID}"
+      - |
+        jq --arg arn "$DIST_ARN" '
+          .Policy | fromjson |
+          .Statement |= map(
+            if .Sid == "AllowCloudFrontServicePrincipalSSE-KMS" then
+              .Condition.StringLike."AWS:SourceArn" = $arn
+            else .
+            end
+          )' current_policy.json > updated_policy.json
+      - aws kms put-key-policy --key-id "$KMS_KEY_ID" --policy-name default --policy file://updated_policy.json --bypass-policy-lockout-safety-check   
+
+#command below only works if there are no other distributions or there are but have aliases. If there are distributions with 
+#no aliases besides yours, will return as 'null' and cause crash before it arrives to the correct distribution.
+#DIST_ID=$(aws cloudfront list-distributions --query "DistributionList.Items[?contains(Aliases.Items, 'www.youramericanhistory.click']).Id" --output text)    
+#.Policy | fromjson | used to unwrap object key string, parse the contents, & transform the value into json
+#value can then be passed by jq to the array/list mapping
+
+#backend.hcl changes first terraform cmd execution. you can either use the bucket directly as an env var since the name is not in backend.tf nor is backend.hcl being committed. backend.hcl is bypassed entirely 
+#second way is to temporarily create backend.hcl in wd using an env var so it is locally available in codebuild ctr. once operation completes and ctr dies, temp file goes with it. both options require an env var. 
+#2nd option cmd: 
+#- echo 'bucket = "'$TEXTAPP_STATE_BUCKET'"' > main-infra/backend.hcl
+#- terraform -chdir=main-infra init -backend-config=main-infra/backend.hcl
