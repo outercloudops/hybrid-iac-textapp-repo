@@ -1,7 +1,11 @@
+data "aws_iam_role" "lambda_fm_exec" {
+  name = "founding-mirror-lambda-exec"
+}
+
 resource "aws_lambda_function" "founding_mirror" {
   filename      = "./ah-text-app/lambda_handler.zip" # no data archive source since zip will be handled in buildspec-app
   function_name = "founding-mirror"
-  role          = aws_iam_role.lambda_exec.arn
+  role          = aws_iam_role.lambda_fm_exec.arn
   # Format: filename_without_extension.function_name
   # lambda_handler.py contains a function called lambda_handler.
   handler          = "lambda_handler.lambda_handler"
