@@ -12,3 +12,4 @@ phases:
     commands:
       - cd ah-text-app && pytest tests/ -v --tb=short
 
+#added to test pipline for textapp-test-stage in codebuild
