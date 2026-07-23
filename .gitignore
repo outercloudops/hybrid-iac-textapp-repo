@@ -12,3 +12,4 @@ crash.*.log
 **/.env
 **/.env.*
 backend.hcl
+bootstrap/kms.tf

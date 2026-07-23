@@ -18,7 +18,7 @@ phases:
       - terraform -chdir=main-infra apply -auto-approve
       - aws s3 sync ./ah-text-app s3://$TEXTAPP_BUCKET --delete
     
-  post_build:
+  post-build:
     commands:
       - DIST_ID=$(aws cloudfront list-distributions --query "DistributionList.Items[?contains(Aliases.Items || \`[]\`, 'www.youramericanhistory.click')].Id" --output text)
       - aws cloudfront create-invalidation --distribution-id $DIST_ID --paths "/*"

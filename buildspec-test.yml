@@ -1,0 +1,15 @@
+version: 0.2   
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.12
+    commands:
+      - pip install pytest anthropic
+  
+  
+  build:
+    commands:
+      - cd ah-text-app && pytest tests/ -v --tb=short
+
+#added to test pipline for textapp-test-stage in codebuild

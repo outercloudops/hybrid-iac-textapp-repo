@@ -62,6 +62,26 @@ resource "aws_kms_key_policy" "cmk_textapp" {
         }
       },
       {
+        Sid    = "AllowLambdaToDecryptAnthropicAPIKeyParameter"
+        Effect = "Allow"
+        Principal = {
+          AWS = [
+            "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${aws_iam_role.lambda_fm_exec.name}"
+          ]
+        }
+        Action = [
+          "kms:Decrypt",
+          "kms:DescribeKey"
+        ],
+        Resource = "*"
+        Condition = {
+          StringEquals = {
+            "kms:ViaService" = "ssm.${data.aws_region.current.region}.amazonaws.com"
+          }
+        }
+      },
+      /*
+      {
         Sid    = "AllowCodeBuildToUpdateCMKPolicy"
         Effect = "Allow"
         Principal = {
@@ -75,7 +95,6 @@ resource "aws_kms_key_policy" "cmk_textapp" {
         ],
         Resource = "*"
       },
-      /*
       {
         Sid    = "CodeCommitUseOfCMK"
         Effect = "Allow"
@@ -104,10 +123,10 @@ resource "aws_kms_key_policy" "cmk_textapp" {
         Resource = "*"
         Condition = {
           StringLike = {
-            "AWS:SourceArn" : "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/*"
-          } #^ used to scope down to one resource; distribution
-        }   #StringEquals requires explicit distribution id. StringLike allows * processing for OAC handshake. 
-      }     #OAC handshake cannot process global IAM string wildcards for security verification during edge fetching. 
+            "AWS:SourceArn" : "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/E2RWPA67GA7YPI" #explicit mention post deployment to prevent drift
+          }                                                                                                                    #^ used to scope down to one resource; distribution
+        }                                                                                                                      #StringEquals requires explicit distribution id. StringLike allows * processing for OAC handshake. 
+      }                                                                                                                        #OAC handshake cannot process global IAM string wildcards for security verification during edge fetching. 
     ]
   })
 }

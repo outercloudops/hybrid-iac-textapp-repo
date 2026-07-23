@@ -1,163 +1,391 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
-  <!-- ======================================================
-       American History Archive
-       Static site — served via CloudFront + S3
-       Source managed in CodeCommit
-       Pipeline: CodePipeline + CodeBuild
-       ====================================================== -->
 
-  <!-- Encoding must be first -->
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- ======================================================
 
-  <title>American History Archive — Download</title>
+American History Archive
 
-  <!-- SEO -->
-  <meta name="description"
-    content="Download the American History Archive app. An interactive terminal experience covering colonial America through the Washington administration. Some answers that feel correct will not be.">
-  <meta name="robots" content="index, follow">
+Static site — served via CloudFront + S3
 
-  <!-- Open Graph (social previews) -->
-  <meta property="og:type"        content="website">
-  <meta property="og:title"       content="American History Archive">
-  <meta property="og:description" content="An interactive terminal experience. The program asks questions. You answer them.">
-  <meta property="og:image"       content="assets/banner.svg">
+Source managed in GitHub
 
-  <!-- Favicon -->
-  <link rel="icon" href="assets/banner.svg" type="image/svg+xml">
+Pipeline: CodePipeline + CodeBuild
 
-  <!-- Preload critical assets -->
-  <link rel="preload" href="assets/banner.svg" as="image" type="image/svg+xml">
-  <link rel="preload" href="css/style.css"     as="style">
+====================================================== -->
 
-  <!-- Stylesheet -->
-  <link rel="stylesheet" href="css/style.css">
+<!-- Encoding must be first -->
+
+<meta charset="UTF-8">
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>American History Archive</title>
+
+<!-- SEO -->
+
+<meta name="description"
+
+content="The Founding Mirror — an interactive experience covering colonial America through the Washington administration. Ten questions. No wrong answers. Only what you actually believe.">
+
+<meta name="robots" content="index, follow">
+
+<!-- Open Graph (social previews) -->
+
+<meta property="og:type" content="website">
+
+<meta property="og:title" content="American History Archive">
+
+<meta property="og:description" content="Ten questions. No wrong answers. Only what you actually believe.">
+
+<meta property="og:image" content="assets/banner.svg">
+
+<!-- Favicon -->
+
+<link rel="icon" href="assets/banner.svg" type="image/svg+xml">
+
+<!-- Preload critical assets -->
+
+<link rel="preload" href="assets/banner.svg" as="image" type="image/svg+xml">
+
+<link rel="preload" href="css/style.css" as="style">
+
+<!-- Stylesheet -->
+
+<link rel="stylesheet" href="css/style.css">
+
+<!-- Google Fonts — Michroma (used inside the app overlay) -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Michroma&display=swap" rel="stylesheet">
+
 </head>
 
 <body>
 
-  <div class="container">
+<div class="container">
 
-    <!-- ===================================================
-         Header
-         Banner images use the Betsy Ross thirteen-star flag
-         (1777–1795) — the flag of the period this app covers.
-         =================================================== -->
-    <header class="site-header">
+<!-- ===================================================
 
-      <img
-        class="banner-img"
-        src="assets/banner.svg"
-        alt="Thirteen-star colonial American flag"
-        width="80"
-        height="80"
-        loading="eager"
-        decoding="async">
+Header
 
-      <div class="banner-title" aria-label="Site name: American History Archive">
-        AMERICAN HISTORY ARCHIVE
-        <span class="banner-subtitle">Established for Public Educational Use</span>
-      </div>
+Banner images use the Betsy Ross thirteen-star flag
 
-      <img
-        class="banner-img"
-        src="assets/banner.svg"
-        alt=""
-        width="80"
-        height="80"
-        loading="eager"
-        decoding="async"
-        aria-hidden="true">
+(1777–1795) — the flag of the period this app covers.
 
-    </header>
+=================================================== -->
 
-    <!-- ===================================================
-         Main Content
-         =================================================== -->
-    <main class="site-main">
+<header class="site-header">
 
-      <h1>Download the American History App</h1>
+<img
 
-      <noscript>
-        <p class="noscript-notice">
-          JavaScript is disabled. You may still download the app using the link below.
-        </p>
-      </noscript>
+class="banner-img"
 
-      <p>
-        Explore key events, figures, and moments in United States history &mdash; from the
-        early colonial period through the close of George Washington's presidency &mdash;
-        through a simple, interactive terminal experience.
-      </p>
+src="assets/banner.svg"
 
-      <p>
-        The program asks questions. You answer them. It is straightforward in that respect.
-      </p>
+alt="Thirteen-star colonial American flag"
 
-      <p>
-        What it asks you to consider after each answer is a separate matter. Most users find
-        the experience educational. A smaller number find it difficult to characterize.
-        Both responses are noted.
-      </p>
+width="80"
 
-      <!-- Download Box -->
-      <div class="download-box">
+height="80"
 
-        <p class="version-label"><strong>Version 1.0</strong></p>
-        <p class="meta">Compatible with Windows / macOS &nbsp;&middot;&nbsp; Made with Python</p>
-        <p class="meta">File size: ~25MB &nbsp;&middot;&nbsp; Last updated: May 2026</p>
+loading="eager"
 
-        <!--
-          href is set at runtime by js/main.js from CLOUDFRONT_DOMAIN.
-          All requests route through CloudFront — the S3 bucket is private.
-          The download attribute prompts a save dialog rather than navigating.
-        -->
-        <a
-          class="download-btn"
-          href="#"
-          download="app_placeholder.zip"
-          aria-label="Download the American History Archive app, version 1.0">
-          Download App
-        </a>
+decoding="async">
 
-        <p class="download-note">
-          No installation required. Run locally. The program does not connect to the internet.<br>
-          It does not need to.
-        </p>
+<div class="banner-title" aria-label="Site name: American History Archive">
 
-      </div>
+AMERICAN HISTORY ARCHIVE
 
-      <!-- Disclaimer -->
-      <div class="disclaimer">
-        <p>
-          This program covers the period from approximately 1760 through 1797. Questions are
-          drawn from documented historical record. Some answers that feel correct will not be.
-          This is not an error. If you believe your understanding of this period is complete,
-          the program is still recommended. Particularly then.
-        </p>
-      </div>
+<span class="banner-subtitle">Established for Public Educational Use</span>
 
-    </main>
+</div>
 
-    <!-- ===================================================
-         Footer
-         =================================================== -->
-    <footer class="site-footer">
-      <span>&copy; 1998 American History Archive</span>
-      <span>Best viewed in 800&times;600 resolution</span>
-    </footer>
+<img
 
-  </div><!-- /.container -->
+class="banner-img"
 
-  <!--
-    Script loaded at end of body — non-blocking.
-    defer is redundant here but included for clarity.
-  -->
-  <script src="js/main.js" defer></script>
+src="assets/banner.svg"
+
+alt=""
+
+width="80"
+
+height="80"
+
+loading="eager"
+
+decoding="async"
+
+aria-hidden="true">
+
+</header>
+
+<!-- ===================================================
+
+Main Content
+
+=================================================== -->
+
+<main class="site-main">
+
+<h1>The Founding Mirror</h1>
+
+<noscript>
+
+<p class="noscript-notice">
+
+JavaScript is disabled. This experience requires JavaScript to run.
+
+</p>
+
+</noscript>
+
+<p>
+
+Explore key events, figures, and moments in United States history &mdash; from the
+
+early colonial period through the close of George Washington's presidency &mdash;
+
+through an interactive experience that runs directly in your browser.
+
+</p>
+
+<p>
+
+The program asks questions. You answer them. It is straightforward in that respect.
+
+</p>
+
+<p>
+
+What it asks you to consider after each answer is a separate matter. Most users find
+
+the experience educational. A smaller number find it difficult to characterize.
+
+Both responses are noted.
+
+</p>
+
+<!-- Begin Box -->
+
+<div class="download-box">
+
+<p class="version-label"><strong>The Founding Mirror</strong></p>
+
+<p class="meta">Runs in your browser &nbsp;&middot;&nbsp; No download required</p>
+
+<p class="meta">Approximately 10&ndash;15 minutes &nbsp;&middot;&nbsp; Ten questions</p>
+
+<!--
+
+Clicking this button shows the full-viewport app overlay.
+
+The landing page remains underneath — untouched.
+
+There is no close button. Browser back or refresh to leave.
+
+-->
+
+<button
+
+class="download-btn"
+
+id="landing-begin-btn"
+
+aria-label="Begin The Founding Mirror experience">
+
+Begin the Experience
+
+</button>
+
+<p class="download-note">
+
+No account required. No data is stored. The program does not remember you.<br>
+
+It does not need to.
+
+</p>
+
+</div>
+
+<!-- Disclaimer -->
+
+<div class="disclaimer">
+
+<p>
+
+This program covers the period from approximately 1607 through 1797. Questions are
+
+drawn from documented historical record. Some answers that feel correct will not be.
+
+This is not an error. If you believe your understanding of this period is complete,
+
+the program is still recommended. Particularly then.
+
+</p>
+
+</div>
+
+</main>
+
+<!-- ===================================================
+
+Footer
+
+=================================================== -->
+
+<footer class="site-footer">
+
+<span>&copy; 1998 American History Archive</span>
+
+<span>Best viewed in 800&times;600 resolution</span>
+
+</footer>
+
+</div><!-- /.container -->
+
+
+<!-- ===================================================
+
+App Overlay — The Founding Mirror
+
+Covers the full viewport when the experience is active.
+
+Hidden by default. Shown when landing-begin-btn is clicked.
+
+All app screens live here. JS in main.js manages them.
+
+=================================================== -->
+
+<div id="app-overlay" class="hidden" role="dialog" aria-label="The Founding Mirror experience">
+
+<div id="app-inner">
+
+<!-- Title / Intro Screen -->
+
+<section id="title-screen" class="app-screen">
+
+<div id="title-container">
+
+<div id="title-text" aria-label="The Founding Mirror"></div>
+
+<div id="app-subtitle">1607 &mdash; 1797</div>
+
+</div>
+
+<div id="intro-container">
+
+<p class="intro-line" id="line-1"></p>
+
+<p class="intro-line" id="line-2"></p>
+
+<p class="intro-line" id="line-3"></p>
+
+<p class="intro-line" id="line-4"></p>
+
+<p class="intro-line" id="line-5"></p>
+
+</div>
+
+</section>
+
+<!-- Question Screen -->
+
+<section id="question-screen" class="app-screen hidden">
+
+<div id="question-counter"></div>
+
+<div id="question-text"></div>
+
+<div id="input-container">
+
+<textarea
+
+id="answer-input"
+
+rows="4"
+
+placeholder="Your answer..."
+
+aria-label="Your answer"
+
+maxlength="1000"></textarea>
+
+<button id="submit-btn" class="app-btn">Submit</button>
+
+</div>
+
+<div id="idle-warning" class="hidden">
+
+The mirror is still here.
+
+</div>
+
+</section>
+
+<!-- Response Screen -->
+
+<section id="response-screen" class="app-screen hidden">
+
+<div id="response-text"></div>
+
+<button id="continue-btn" class="app-btn hidden">Continue</button>
+
+</section>
+
+<!-- Outro Screen -->
+
+<section id="outro-screen" class="app-screen hidden">
+
+<div id="outro-text"></div>
+
+</section>
+
+<!-- Loading Indicator -->
+
+<div id="loading" class="hidden">
+
+<span class="loading-dot">.</span>
+
+<span class="loading-dot">.</span>
+
+<span class="loading-dot">.</span>
+
+</div>
+
+<!-- Error Display -->
+
+<div id="error-display" class="hidden" role="alert">
+
+<p id="error-message"></p>
+
+<button id="retry-btn" class="app-btn">Try Again</button>
+
+</div>
+
+</div><!-- /#app-inner -->
+
+</div><!-- /#app-overlay -->
+
+
+<!--
+
+Script loaded at end of body — non-blocking.
+
+defer is redundant here but included for clarity.
+
+-->
+
+<script src="js/main.js" defer></script>
 
 </body>
+
 </html>

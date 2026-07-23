@@ -25,7 +25,9 @@ data "aws_iam_policy_document" "codebuild_policy" {
     ]
     resources = [
       "arn:aws:logs:us-east-1:${data.aws_caller_identity.current.account_id}:log-group:/aws/codebuild/${local.codebuild_project_name}",
-      "arn:aws:logs:us-east-1:${data.aws_caller_identity.current.account_id}:log-group:/aws/codebuild/${local.codebuild_project_name}:*"
+      "arn:aws:logs:us-east-1:${data.aws_caller_identity.current.account_id}:log-group:/aws/codebuild/${local.codebuild_project_name}:*",
+      "arn:aws:logs:us-east-1:${data.aws_caller_identity.current.account_id}:log-group:/aws/codebuild/${local.codebuild_test_project_name}",
+      "arn:aws:logs:us-east-1:${data.aws_caller_identity.current.account_id}:log-group:/aws/codebuild/${local.codebuild_test_project_name}:*"
     ]
   }
   statement {
@@ -207,6 +209,61 @@ data "aws_iam_policy_document" "codebuild_policy" {
     ]
     resources = ["*"]
   }
+
+  statement {
+    sid    = "AllowLambdaManagement"
+    effect = "Allow"
+    actions = [
+      "lambda:CreateFunction",
+      "lambda:GetFunction",
+      "lambda:UpdateFunctionCode",
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:DeleteFunction",
+      "lambda:ListVersionsByFunction",
+      "lambda:GetFunctionCodeSigningConfig",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:GetPolicy"
+    ]
+    resources = ["arn:aws:lambda:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:function:founding-mirror"]
+  }
+
+  statement {
+    sid    = "AllowIAMPassRoleToLambda"
+    effect = "Allow"
+    actions = [
+      "iam:GetRole",
+      "iam:PassRole"
+    ]
+    resources = [aws_iam_role.lambda_fm_exec.arn]
+  }
+
+  statement {
+    sid    = "AllowAPIGatewayManagement"
+    effect = "Allow"
+    actions = [
+      "apigateway:GET",
+      "apigateway:POST",
+      "apigateway:PATCH",
+      "apigateway:PUT",
+      "apigateway:DELETE"
+    ]
+    resources = ["arn:aws:apigateway:${data.aws_region.current.region}::/apis/*"]
+  }
+
+  statement {
+    sid    = "AllowCloudWatchLogsManagement"
+    effect = "Allow"
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:DeleteLogGroup",
+      "logs:DescribeLogGroups",
+      "logs:PutRetentionPolicy",
+      "logs:ListTagsLogGroup"
+    ]
+    resources = ["arn:aws:logs:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/founding-mirror"]
+  }
+
 }
 
 resource "aws_iam_policy" "codebuild_policy" {

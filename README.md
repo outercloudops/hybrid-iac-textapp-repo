@@ -25,21 +25,27 @@ customer-managed key scoped to least-privilege.
 - **CloudFront + OAC** — CDN with origin access control, geo-restriction, custom TTL
 - **S3** — private bucket with SSE-KMS, versioning, and lifecycle policies
 - **KMS CMK** — customer-managed key with scoped key policy
+- **Anthropic API Key** — API key for Anthropic API use in Founding Mirror textapp
 - **CodePipeline + CodeBuild** — CI/CD triggered by GitHub webhook
-- **SSM Parameter Store** — stores KMS key ARN for CodeBuild runtime use
-- **IAM** — least-privilege service roles for CodePipeline and CodeBuild
-
+- **SSM Parameter Store** — stores KMS key ARN for CodeBuild runtime use and Anthropic API key for app response use
+- **IAM** — least-privilege service & execution roles for CodePipeline, CodeBuild, & Lambda
+- **API Gateway + CORS** — Secondary origin, frontend AWS Proxy for Lambda handler app backend and routing Anthropic API requests towards it 
+- **Lambda Function** — App backend comprising of python source code sharing app functionality with main.js in ah-text-app/js in S3  
 ---
 
 ## Repository Structure
 
-    bootstrap/      One-time infrastructure: S3 state buckets, KMS CMK,
-                    IAM roles, CodePipeline, CodeBuild
-    main-infra/     Core resources: CloudFront, OAC, S3 app bucket,
-                    remote state data source
-    ah-text-app/    HTML site source code and Python text app placeholder
-    buildspec.yml   CodeBuild build specification
-
+    bootstrap/           One-time infrastructure: S3 state buckets, KMS CMK,
+                         IAM roles, CodePipeline, CodeBuild, Lambda execution
+                         role + policy + attachment
+    main-infra/          Core resources: CloudFront, OAC, S3 app bucket,
+                         API Gateway, Lambda Function, APIGW + Lambda Route,
+                         Integration, & Stage
+                         remote state data source, 
+    ah-text-app/         HTML site source code and app lambda_handler.py 
+    buildspec-infra.yml  CodeBuild HTML site build specification
+    testing/             Pytest file to run checks against app logic living in 
+                         handler via secondary dev pipeline
 ---
 
 ## Local Configuration Required
@@ -91,4 +97,10 @@ Main-infra runs automatically via the pipeline on every push to main.
 
 ## Future Update To This Repo
 
-- Replace the image placeholder with the completed Python text app
+- Add buildspec-test.yml for dev branch pipeline.
+- Add buildspec-app.yml for main branch pipeline and app deployment.
+- Update cmk.tf Cloudfront policy to prevent drift. 
+- Add Lambda execution role, policy, and attachment configuration files in bootstrap.
+- Add secondary origin for apigw to CloudFront distribution resource.
+- Add Lambda Function, API Gateway, Route, Integration, & Stage resources in main-infra.
+- Add CloudWatch Group resource for lambda function in main-infra.

@@ -63,7 +63,10 @@ data "aws_iam_policy_document" "codepipeline_policy" {
       "codebuild:StartBuild",
       "codebuild:BatchGetBuilds"
     ]
-    resources = ["arn:aws:codebuild:us-east-1:${data.aws_caller_identity.current.account_id}:project/${local.codebuild_project_name}"] #can use locals for project name too
+    resources = [
+      "arn:aws:codebuild:us-east-1:${data.aws_caller_identity.current.account_id}:project/${local.codebuild_project_name}",
+      "arn:aws:codebuild:us-east-1:${data.aws_caller_identity.current.account_id}:project/${local.codebuild_test_project_name}"
+    ] #can use locals for project name too
   }
   statement {
     sid    = "KMSArtifactEncryption"

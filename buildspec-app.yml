@@ -1,0 +1,30 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.12
+    commands:
+      - pip install anthropic -t ./package/
+      
+  pre-build:    
+    commands:
+      - cp ./ah-text-app/lambda_handler.py ./package/ && cd ./package/
+      - zip -r ../ah-text-app/lambda_handler.zip . && cd ..
+  
+  build:
+    commands:
+      - terraform -chdir=main-infra init -backend-config="bucket=$TEXTAPP_STATE_BUCKET" #additional env var in codebuild needed for state bucket since backend.hcl not readily available []
+      - terraform -chdir=main-infra plan
+      - terraform -chdir=main-infra apply -auto-approve
+      - aws s3 sync ./ah-text-app s3://$TEXTAPP_BUCKET --delete --exclude "lambda_handler.zip"
+    
+  post-build:
+    commands:
+      - aws cloudfront create-invalidation --distribution-id $DIST_ID --paths "/*"
+
+#backend.hcl changes first terraform cmd execution. you can either use the bucket directly as an env var since the name is not in backend.tf nor is backend.hcl being committed. backend.hcl is bypassed entirely 
+#second way is to temporarily create backend.hcl in wd using an env var so it is locally available in codebuild ctr. once operation completes and ctr dies, temp file goes with it. both options require an env var. 
+#2nd option cmd: 
+#- echo 'bucket = "'$TEXTAPP_STATE_BUCKET'"' > main-infra/backend.hcl
+#- terraform -chdir=main-infra init -backend-config=main-infra/backend.hcl
