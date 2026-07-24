@@ -91,6 +91,7 @@ let idleTimer     = null;
 let lastSubmitted = null;  // stored for retry
 let aborted = false;
 let experienceRunning = false; 
+let sessionId = 0;
 
 // ── DOM References ────────────────────────────────────────────────────────────
 
@@ -220,7 +221,7 @@ const INTRO_LINES_TEXT = [
   "It only reflects."
 ];
 
-async function runIntroSequence() {
+async function runIntroSequence(mySession) {
   // Reset all lines — force reflow to clear any lingering transition state
   introLines.forEach(line => {
     line.style.transition = "none";
@@ -230,8 +231,11 @@ async function runIntroSequence() {
     line.style.transition = "";
   });
 
+  
+  await new Promise(resolve => requestAnimationFrame(resolve));
+
   for (let i = 0; i < introLines.length; i++) {
-    if (aborted) return;
+    if (aborted || sessionId != mySession) return;
     introLines[i].textContent = INTRO_LINES_TEXT[i];
     introLines[i].classList.add("visible");
     await sleep(DELAY_INTRO_LINE);
@@ -265,10 +269,10 @@ async function callAPI(question, userAnswer) {
 
 // ── Typewriter ────────────────────────────────────────────────────────────────
 
-async function typewrite(element, text, delay) {
+async function typewrite(element, text, delay, mySession) {
   element.textContent = "";
   for (const char of text) {
-    if (aborted) return;
+    if (aborted || (mySession !== undefined && sessionId !== mySession)) return;
     element.textContent += char;
     await sleep(delay);
   }
@@ -295,12 +299,12 @@ async function runOutro() {
   outroText.textContent = "";
 
   for (const line of OUTRO_LINES) {
-    if (aborted) return;
+    if (aborted || sessionId !== mySession) return;
     if (line === "") {
       outroText.textContent += "\n";
     } else {
       for (const char of line) {
-        if (aborted) return;
+        if (aborted || sessionId !== mySession) return;
         outroText.textContent += char;
         await sleep(22);
       }
@@ -317,6 +321,9 @@ async function startExperience() {
   if (experienceRunning) return;
   experienceRunning = true;
   aborted = false;
+  sessionId++;         // invalidates all previous async calls
+  const mySession = sessionId;
+
   // Show overlay — covers the full window
   appOverlay.classList.remove("hidden");
   appOverlay.classList.add("phase-white");
@@ -342,10 +349,10 @@ async function startExperience() {
 
   if (aborted) return;
 
-  await showQuestion(QUESTIONS[currentIndex]);
+  await showQuestion(QUESTIONS[currentIndex], mySession);
 }
 
-async function showQuestion(question) {
+async function showQuestion(question, mySession) {
   clearError();
   hideEl(loadingEl);
   setColorPhase(question.id);
@@ -357,13 +364,14 @@ async function showQuestion(question) {
   questionText.textContent = "";
   questionCounter.textContent = `[ ${question.id} / 10 ]`;
 
-  await typewrite(questionText, question.text, DELAY_QUESTION_CHAR);
+  await typewrite(questionText, question.text, DELAY_QUESTION_CHAR, mySession);
+  if (aborted || sessionId !== mySession) return;
 
   if (aborted) return;
 
   await sleep(300);
 
-  if (aborted) return;
+  if (aborted || sessionId !== mySession) return;
 
   showEl(submitBtn);
   answerInput.focus();
@@ -376,6 +384,8 @@ async function handleSubmit() {
     answerInput.focus();
     return;
   }
+
+  const mySession = sessionId;
 
   clearIdleTimer();
   hideEl(idleWarning);
@@ -390,44 +400,48 @@ async function handleSubmit() {
   try {
     aiResponse = await callAPI(question, answer);
   } catch (err) {
+    if (aborted || sessionId !== mySession) return;
     hideEl(loadingEl);
     showError(err.message || "Something went wrong. Please try again.");
     showEl(submitBtn);
     return;
   }
 
-  if (aborted) return;
+  if (aborted || sessionId !== mySession) return;
 
   hideEl(loadingEl);
   showScreen(responseScreen);
   hideEl(continueBtn);
   responseText.textContent = "";
 
-  await typewrite(responseText, aiResponse, DELAY_RESPONSE_CHAR);
+  await typewrite(responseText, aiResponse, DELAY_RESPONSE_CHAR, mySession);
 
-  if (aborted) return;
+  if (aborted || sessionId !== mySession) return;
 
   await sleep(400);
 
-  if (aborted) return;
+  if (aborted || sessionId !== mySession) return;
 
   showEl(continueBtn);
 }
 
 async function handleContinue() {
   if (aborted) return;
+  const mySession = sessionId;
   hideEl(continueBtn);
   currentIndex++;
   if (currentIndex >= QUESTIONS.length) {
-    await runOutro();
-    experienceRunning = false;
+    await runOutro(mySession);
+    if (sessionId === mySession) experienceRunning = false;
   } else {
-    await showQuestion(QUESTIONS[currentIndex]);
+    await showQuestion(QUESTIONS[currentIndex], mySession);
   }
 }
 
 async function handleRetry() {
   if (!lastSubmitted) return;
+
+  const mySession = sessionId;
 
   clearError();
   showEl(loadingEl);
@@ -437,13 +451,14 @@ async function handleRetry() {
   try {
     aiResponse = await callAPI(lastSubmitted.question, lastSubmitted.answer);
   } catch (err) {
+    if (aborted || sessionId !== mySession) return;
     hideEl(loadingEl);
     showError(err.message || "Still unable to reach the mirror. Try again.");
     showEl(retryBtn);
     return;
   }
 
-  if (aborted) return;
+  if (aborted || sessionId !== mySession) return;
 
   hideEl(loadingEl);
   hideEl(errorDisplay);
@@ -451,13 +466,13 @@ async function handleRetry() {
   hideEl(continueBtn);
   responseText.textContent = "";
 
-  await typewrite(responseText, aiResponse, DELAY_RESPONSE_CHAR);
+  await typewrite(responseText, aiResponse, DELAY_RESPONSE_CHAR, mySession);
 
-  if (aborted) return;
+  if (aborted || sessionId !== mySession) return;
 
   await sleep(400);
 
-  if (aborted) return;
+  if (aborted || sessionId !== mySession) return;
 
   showEl(continueBtn);
 }
